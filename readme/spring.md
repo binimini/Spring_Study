@@ -2,7 +2,17 @@ Spring
 ==
 
 ## 구조
-Controller-Service-Repository 구성
+
+* 프레젠테이션 계층 @Controller
+* 서비스 계층 @Service
+* 데이터 엑세스 계층 @Repository
+* 도메인 모델 계층 @Entity
+
+Controller-Service-Domain-Repository 구성
+
+DAO : 실제로 DB에 접근하는 객체, Service와 DB 사이 고리, Repository
+
+DTO : 데이터 전달을 위한 객체, 로직 없이 getter setter 등만 가지는 순수 데이터 객체, entity 
 
 ## DB
 * JDBC
@@ -17,6 +27,32 @@ JPA : ORM 사용 명세 API : Interface : 구현체 Hibernate 등
 ORM : 객체 - table mapping, 객체와 쿼리문 분리
 
 Spring Data JPA : EntityMapper 대신 Repository Inteface 사용
+
+#### 연관관계 매핑(외래키 매핑)
+
+연관관계 매핑시 entity를 참조
+(mybatis 관계 table PK 참조)
+
+연관관계를 매핑 시 다중성을 나타내는 어노테이션필수 사용, 엔티티 자신 기준으로 다중성 표시 (1:N, N:1, N:N, 1:1)
+    
+    @JoinColumn(name="<매핑할 컬럼 변수명") 
+    @ManyToOne 
+
+    @OneToMany
+    @OneToMany(mappedBy="<매핑된 객체 변수명>")
+    
+    @ManyToMany
+
+@ManyToOne @JoinColumn으로 어떤 외래키와 매핑하는 지 표시, 생략 시 기본으로 "필드명_참조테이블의id컬럼명"
+
+@OneToMany @mappedBy 통해서 연관관계의 주인(외래키 가진 테이블 객체) 설정
+
+JPA @ManyToMany 관계에서 두 테이블의 키 복합키로 갖는 테이블 자동으로 생성
+
+Fetch Type
+* Eager : 연관관계 엔티티 모두 가져온다
+* Lazy : 연관 관계에 있는 Entity 가져오지 않고, getter 로 접근할 때 가져온다
+-> N+1 Problem?
 
 #### 컨트롤러(Controller)
     @Controller
