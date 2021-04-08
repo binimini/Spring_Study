@@ -54,6 +54,13 @@ Fetch Type
 * Lazy : 연관 관계에 있는 Entity 가져오지 않고, getter 로 접근할 때 가져온다
 -> N+1 Problem?
 
+Cascade @ManyToMany, @OneToMany(One(Parent)-Many(Child)) 등에서 객체가 변화함에 따라 연관된 객체를 어떻게 할지 정한다
+* ALL : 밑에 서술 모두 포함
+* PERSIST : 부모 객체가 영속성을 지닐 때 자식 객체도 같이 영속성 지니게 함, 설정 시 자식 객체만 직접적으로 삭제 안 됨 
+* REMOVE : 부모 객체가 삭제될 시 자식 객체 같이 삭제
+
+PERSIST 자식 객체 관리 부모가 하는 느낌?
+
 #### 컨트롤러(Controller)
     @Controller
 
@@ -62,11 +69,27 @@ Fetch Type
 
 를 사용해서 Controller 자체의 경로를 설정하거나 메소드의 경로를 설정할 수 있다
 
+    @RestController
+
+API 형식으로 컨트롤러를 사용하고자 할 경우 @Controller 대신 @RestController 사용으로 Circular view error 방지할 수 있다
+
 URI 중 쿼리스트링이 /경로?name=<> 식으로 들어오면 아래와 같이 받는다
 
     public void function(@RequstParam name)
 
-응답은 아래의 어노테이션을 통해 넘겨준다. @ResponseBody로 객체 넘길 경우 MessageConverter(Jackson)에 의해 JSON으로 변환
+요청
+
+@RequestBody : Http 요청의 Body내용을 Java Object로 변환시켜주는 역할, POST와 함께 사용
+
+@RequestParam : url에서 요청 파라미터를 1:1로 받을 수 있음 (Defaultvalue, Required 설정 가능)
+
+    (@RequestParam("<url상 변수명>") type name)
+    (@RequestBody(""))
+
+
+응답
+
+@ResponseBody로 객체 넘길 경우 MessageConverter(Jackson)에 의해 JSON으로 변환
 
     @ResponseBody
 
@@ -89,7 +112,6 @@ save() 기존에 없는 객체면 persist하고 있으면 merge하므로 set() �
 primary key AUTO_INCREMENT 설정시 save 후에 primary key 생성되므로 주의
 
 
-
     @Getter
     @RequiredArgsConstructor //NonNull 설정 파라미터 포함한 생성자
     
@@ -103,3 +125,10 @@ primary key AUTO_INCREMENT 설정시 save 후에 primary key 생성되므로 주
          @Column(nullable = false)
          private String name;
     }
+
+객체 JSON으로 반환 시 양방향 관계 객체의 경우 순환 참조 문제가 발생된다
+아래 어노테이션 이용해서 순환 참조 방지
+    
+    @JsonBackReference 
+    @JsonManagedReference 
+
