@@ -28,26 +28,39 @@ ORM : 객체 - table mapping, 객체와 쿼리문 분리
 
 Spring Data JPA : EntityMapper 대신 Repository Inteface 사용
 
-#### 연관관계 매핑(외래키 매핑)
+* [외래키 매핑](#연관관계-매핑-외래키-매핑)
+* [Controller](#컨트롤러-controller)
+* [Service](#)
+* [Repository](#저장소-repository)
+* [Entity](#객체-entity))
 
-연관관계 매핑시 entity를 참조
-(mybatis 관계 table PK 참조)
+#### 연관관계 매핑 외래키 매핑
+
+jpa : 연관관계 매핑시 entity를 참조
+(mybatis : 관계 table PK 참조)
 
 연관관계를 매핑 시 다중성을 나타내는 어노테이션필수 사용, 엔티티 자신 기준으로 다중성 표시 (1:N, N:1, N:N, 1:1)
     
-    @JoinColumn(name="<매핑할 컬럼 변수명") 
-    @ManyToOne 
 
-    @OneToMany
+    @ManyToOne 
+    @JoinColumn(name="<매핑할 컬럼 변수명") 
+
     @OneToMany(mappedBy="<매핑된 객체 변수명>")
     
+
     @ManyToMany
+    @JoinTable(name = "<매개테이블 이름>", joinColumns = @JoinColumn(name = "<현재 객체 테이블에서 매핑되는 컬럼>"),
+                        inverseJoinColumns = @JoinColumn(name = "<반대 객체 테이블에서 매핑되는 컬럼>"))
+    @ManyToMany(mappedBy = "members")
 
 @ManyToOne @JoinColumn으로 어떤 외래키와 매핑하는 지 표시, 생략 시 기본으로 "필드명_참조테이블의id컬럼명"
 
 @OneToMany @mappedBy 통해서 연관관계의 주인(외래키 가진 테이블 객체) 설정
 
 JPA @ManyToMany 관계에서 두 테이블의 키 복합키로 갖는 테이블 자동으로 생성
+
+mappedBy 옵션 통해서 주인 설정
+
 
 Fetch Type
 * Eager : 연관관계 엔티티 모두 가져온다
@@ -61,7 +74,7 @@ Cascade @ManyToMany, @OneToMany(One(Parent)-Many(Child)) 등에서 객체가 변
 
 PERSIST 자식 객체 관리 부모가 하는 느낌?
 
-#### 컨트롤러(Controller)
+#### 컨트롤러 Controller
     @Controller
 
 가장 처음 사용자의 경로 제어하는 부분
@@ -93,12 +106,12 @@ URI 중 쿼리스트링이 /경로?name=<> 식으로 들어오면 아래와 같�
 
     @ResponseBody
 
-#### 저장소(Repository)
+#### 저장소 Repository
 
     @Repository
     public interface repository extends JpaRepository <Entity, Primary Key Type> {}
     
-#### 객체 (Entity)
+#### 객체 Entity
 JPA 변경 감지 : 영속성 있는 entity 변경 시 변경을 감지하고 트랙잭션 하거나 enitity manager의 flush() 호출하는 경우 자동으로 update 됨
 
 영속 : 엔티티 매니저가 관리하는 persistence context에 엔티티가 저장된 상태
