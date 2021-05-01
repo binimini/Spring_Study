@@ -39,6 +39,14 @@ Spring Data JPA : EntityMapper 대신 Repository Inteface 사용
 jpa : 연관관계 매핑시 entity를 참조
 (mybatis : 관계 table PK 참조)
 
+복합키 사용하는 entity : @Id는 단일키만 가능, 복합키 정의를 위한 class(식별자) 필요(@Id 여전히 표시)
+* @EmbeddedId : 변수 작성 부분 많음
+* @Idclass : 식별자 작성 부분 많음
+
+@Idclass 구현 시 Serializable 상속해야함, 식별자와 엔티티 변수명 같을 것, public이여야 하고, @Data(equals/hashCode), @NoArgsConstructor(default consturtor)
+
+Object 자료형으로 쓸 수 없으므로 Integer로 해놓고 entity에서 중복 매핑한다. (insertable=false, updatable=false)
+
 연관관계를 매핑 시 다중성을 나타내는 어노테이션필수 사용, 엔티티 자신 기준으로 다중성 표시 (1:N, N:1, N:N, 1:1)
     
 
@@ -57,6 +65,12 @@ jpa : 연관관계 매핑시 entity를 참조
 
 @OneToMany @mappedBy 통해서 연관관계의 주인(외래키 가진 테이블 객체) 설정
 
+1 : MappedBy, parent
+
+|
+
+N : 연관관계 주인, child, 외래키 보유
+
 JPA @ManyToMany 관계에서 두 테이블의 키 복합키로 갖는 테이블 자동으로 생성
 
 mappedBy 옵션 통해서 주인 설정
@@ -65,9 +79,16 @@ mappedBy 옵션 통해서 주인 설정
 Fetch Type
 * Eager : 연관관계 엔티티 모두 가져온다
 * Lazy : 연관 관계에 있는 Entity 가져오지 않고, getter 로 접근할 때 가져온다
--> N+1 Problem?
+
+기본적으로 fetchType.Lazy 사용하자.
+
+Eager 사용시 child 이용시 관련된 parent까지 persistance context에 올리기 때문에 
+
+만약 delete하거나 update한다해도 context에 남아있어서 문제될 수 있다.
 
 Cascade @ManyToMany, @OneToMany(One(Parent)-Many(Child)) 등에서 객체가 변화함에 따라 연관된 객체를 어떻게 할지 정한다
+
+parent -> child
 * ALL : 밑에 서술 모두 포함
 * PERSIST : 부모 객체가 영속성을 지닐 때 자식 객체도 같이 영속성 지니게 함, 설정 시 자식 객체만 직접적으로 삭제 안 됨 
 * REMOVE : 부모 객체가 삭제될 시 자식 객체 같이 삭제
