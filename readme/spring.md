@@ -1,7 +1,7 @@
 Spring
 ==
 
-[1.Structure]](#구조)
+[1.Structure](#구조)
 
 [2.DB](#db)
 
