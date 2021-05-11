@@ -2,13 +2,21 @@ Spring
 ==
 
 [1.Structure]](#구조)
+
 [2.DB](#db)
+
 [3.JPA](#jpa)
+
 [3-1.외래키 매핑](#연관관계-매핑-외래키-매핑)
+
 [3-2.Controller](#컨트롤러-controller)
+
 [3-3.Service](#)
+
 [3-4.Repository](#저장소-repository)
+
 [3-5.Entity](#객체-entity))
+
 [3-6.Paging](#paging)
 
 ## 구조
@@ -185,5 +193,6 @@ PageRequest : Serializable, Pageable 상속, Repository에 paging 요청하는 �
 파라미터 바인딩 : 위치 기반/이름 기반
 
 이름 기반 : :name으로 변수 표시, @Param("name") 통해 파라미터 바인딩
+
     @Query(value = "select u from User u where u.name = :name")
     List<User> findByuserNamedQuery(@Param("name") String name);
