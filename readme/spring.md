@@ -1,6 +1,16 @@
 Spring
 ==
 
+[1.Structure]](#구조)
+[2.DB](#db)
+[3.JPA](#jpa)
+[3-1.외래키 매핑](#연관관계-매핑-외래키-매핑)
+[3-2.Controller](#컨트롤러-controller)
+[3-3.Service](#)
+[3-4.Repository](#저장소-repository)
+[3-5.Entity](#객체-entity))
+[3-6.Paging](#paging)
+
 ## 구조
 
 * 프레젠테이션 계층 @Controller
@@ -28,11 +38,7 @@ ORM : 객체 - table mapping, 객체와 쿼리문 분리
 
 Spring Data JPA : EntityMapper 대신 Repository Inteface 사용
 
-* [외래키 매핑](#연관관계-매핑-외래키-매핑)
-* [Controller](#컨트롤러-controller)
-* [Service](#)
-* [Repository](#저장소-repository)
-* [Entity](#객체-entity))
+
 
 #### 연관관계 매핑 외래키 매핑
 
@@ -152,10 +158,10 @@ primary key AUTO_INCREMENT 설정시 save 후에 primary key 생성되므로 주
     @Entity
     @Table(name="") //생략시 객체 클래스 이름 == 테이블 이름
     public class Object{
-         @Id //PRIMARY KEY
+         @Id                                                 //PRIMARY KEY
          @GeneratedValue(strategy = GenerationType.IDENTITY) //AUTO_INCREMENT
          private Long id;
-         @NonNull //lombok
+         @NonNull                                            //lombok
          @Column(nullable = false)
          private String name;
     }
@@ -166,3 +172,18 @@ primary key AUTO_INCREMENT 설정시 save 후에 primary key 생성되므로 주
     @JsonBackReference 
     @JsonManagedReference 
 
+#### Paging
+Paging : entity를 page로 나눠서 반환하게 하는 것
+
+PageRequest : Serializable, Pageable 상속, Repository에 paging 요청하는 데에 사용
+
+    PageRequest(int page, int size[,Sort sort])
+
+    repository.findAll(Pageable pageable).getContent          //PageRequst 파라미터로, getContent Page->List
+
+#### Query
+파라미터 바인딩 : 위치 기반/이름 기반
+
+이름 기반 : :name으로 변수 표시, @Param("name") 통해 파라미터 바인딩
+    @Query(value = "select u from User u where u.name = :name")
+    List<User> findByuserNamedQuery(@Param("name") String name);
