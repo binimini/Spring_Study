@@ -11,13 +11,21 @@ Spring
 
 [3-2.Controller](#컨트롤러-controller)
 
+[3-2-1.ControllerAdvice](#controller-advice)
+
 [3-3.Service](#)
 
 [3-4.Repository](#저장소-repository)
 
 [3-5.Entity](#객체-entity))
 
+[3-5-1.ResponseEntity](#responseentity)
+
 [3-6.Paging](#paging)
+
+[3-7](#query)
+
+[4.Transaction](#transaction)
 
 ## 구조
 
@@ -48,7 +56,7 @@ Spring Data JPA : EntityMapper 대신 Repository Inteface 사용
 
 
 
-#### 연관관계 매핑 외래키 매핑
+### 연관관계 매핑 외래키 매핑
 
 jpa : 연관관계 매핑시 entity를 참조
 (mybatis : 관계 table PK 참조)
@@ -109,7 +117,7 @@ parent -> child
 
 PERSIST 자식 객체 관리 부모가 하는 느낌?
 
-#### 컨트롤러 Controller
+### 컨트롤러 Controller
     @Controller
 
 가장 처음 사용자의 경로 제어하는 부분
@@ -141,12 +149,17 @@ URI 중 쿼리스트링이 /경로?name=<> 식으로 들어오면 아래와 같�
 
     @ResponseBody
 
-#### 저장소 Repository
+#### Controller Advice
+전체 Controller에 공통적으로 적용할 수 있다
+
+Exception handler 구현에 사용된다 : 공통적인 예외사항에 대해서 별도로 분리하여 처리하는 방식
+
+### 저장소 Repository
 
     @Repository
     public interface repository extends JpaRepository <Entity, Primary Key Type> {}
     
-#### 객체 Entity
+### 객체 Entity
 JPA 변경 감지 : 영속성 있는 entity 변경 시 변경을 감지하고 트랙잭션 하거나 enitity manager의 flush() 호출하는 경우 자동으로 update 됨
 
 영속 : 엔티티 매니저가 관리하는 persistence context에 엔티티가 저장된 상태
@@ -176,11 +189,21 @@ primary key AUTO_INCREMENT 설정시 save 후에 primary key 생성되므로 주
 
 객체 JSON으로 반환 시 양방향 관계 객체의 경우 순환 참조 문제가 발생된다
 아래 어노테이션 이용해서 순환 참조 방지
+
+또는 @JsonIgnore를 통해 객체를 반환해도 json에 해당 필드가 포함되지 않게 할 수 있다
     
     @JsonBackReference 
     @JsonManagedReference 
+    @JsonIgnore
 
-#### Paging
+#### ResponseEntity
+ResponseEntity : server에서 status code, body(Object), headers를 반환할 수 있다 (httpStatus는 필수)
+
+error에 대한 responseEntity는 error response 객체를 따로 선언해 통일해 exception handler를 통해 responseEntity<errorresponse>를 반환하는 것으로 처리
+
+responseEntity<Object>를 통해 error message(String), resource(Entity) 전달할 수도 있지만 이 경우 Casting 해줘야할 수 있다
+
+### Paging
 Paging : entity를 page로 나눠서 반환하게 하는 것
 
 PageRequest : Serializable, Pageable 상속, Repository에 paging 요청하는 데에 사용
@@ -189,10 +212,33 @@ PageRequest : Serializable, Pageable 상속, Repository에 paging 요청하는 �
 
     repository.findAll(Pageable pageable).getContent          //PageRequst 파라미터로, getContent Page->List
 
-#### Query
+Controller에서 파라미터 Pageable 설정 시 size, page, (Sort) 받아서 Pageable 객체 자동으로 생성해 함수의 파라미터로 들어오게 됨
+
+Pageable/PageRequest immutable 객체이므로 변경 사항 적용시 새로 만들어서 사용
+
+### Query
 파라미터 바인딩 : 위치 기반/이름 기반
 
 이름 기반 : :name으로 변수 표시, @Param("name") 통해 파라미터 바인딩
 
     @Query(value = "select u from User u where u.name = :name")
     List<User> findByuserNamedQuery(@Param("name") String name);
+
+## Transaction
+Transaction : db에 결과 반영되는 흐름
+
+Session : 하나의 영속성 context 유지, transaction 시작 - 끝
+
+@Transactional 어노테이션 트랙젝션 조작할 수 있다
+
+lazy fetch시 객체의 proxy 반환 만약 다른 session에서 해당 proxy를 통해 객체를 사용하려 하면 
+
+해당 proxy를 intialize 하기 위한 session이 없어 intialize 할 수 없다 => error 
+
+findOne(Entity) vs getOne(Proxy)
+
+ex) lazy fetch 사용시 One - Many 양방향 관계에서 One을 request하고 필요한 처리를 하면 해당 트랙색션을 커밋하고 session을 end
+
+그 뒤에 One을 통해 Many를 호출하게 되면 이미 One session closed => error 
+
+=> 두 처리를 @Transactional 함수 내 처리 시 같은 session 사용할 수 있음?
