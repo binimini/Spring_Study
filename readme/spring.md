@@ -27,6 +27,8 @@ Spring
 
 [4.Transaction](#transaction)
 
+[5.Caching](#caching)
+
 ## 구조
 
 * 프레젠테이션 계층 @Controller
@@ -196,6 +198,7 @@ primary key AUTO_INCREMENT 설정시 save 후에 primary key 생성되므로 주
     @JsonManagedReference 
     @JsonIgnore
 
+단 self join 인 경우 @identyjson? 사용해서 객체 구분해서 무한 루프 없이 반환하도록 한다.
 #### ResponseEntity
 ResponseEntity : server에서 status code, body(Object), headers를 반환할 수 있다 (httpStatus는 필수)
 
@@ -242,3 +245,17 @@ ex) lazy fetch 사용시 One - Many 양방향 관계에서 One을 request하고 
 그 뒤에 One을 통해 Many를 호출하게 되면 이미 One session closed => error 
 
 => 두 처리를 @Transactional 함수 내 처리 시 같은 session 사용할 수 있음?
+
+
+## Caching
+caching : 이전에 검색하거나 계산한 데이터를 효율적으로 재사용하는 것, 서버의 부하를 줄이고 속도 향상할 수 있다
+
+* 동일한 결과를 반복해서 전달하는 경우
+* 접근시간에서 원래 데이터 접근 시간이 오래 걸리는 경우
+
+사용하면 좋다
+
+주로 키-값으로 사용했던 데이터를 쌓아놓고 반환하는 형태, in-memory
+
+LRU 구현해보기
+redis 사용해보기
